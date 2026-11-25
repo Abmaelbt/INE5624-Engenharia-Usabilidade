@@ -12,16 +12,26 @@ import {
   type TaskSummary,
   type TimerId,
 } from '../utils/telemetry';
+import { resetWorkout, setWorkoutPreset } from '../utils/workoutStore';
 
-const SCENARIOS = [
-  { label: 'T2.A · Fim do treino', to: '/treino-concluido' },
-  { label: 'T2.B · Início (padrão)', to: '/' },
+interface Scenario {
+  label: string;
+  to: string;
+  preset?: 'pending' | 'done';
+}
+
+const SCENARIOS: Scenario[] = [
+  { label: 'T1.A · Início (treino 0/3)', to: '/', preset: 'pending' },
+  { label: 'T1.B · Treino (etapa 1)', to: '/treino/1', preset: 'pending' },
+  { label: 'T2.A · Fim do treino', to: '/treino-concluido', preset: 'done' },
+  { label: 'T2.B · Início (treino 3/3)', to: '/', preset: 'done' },
   { label: 'T3.A · Tarefas', to: '/tarefas' },
   { label: 'T3.B · Filtro Memória', to: '/tarefas?area=memoria' },
-  { label: 'T3.D · Prática', to: '/pratica/fliperamemoria' },
+  { label: 'T3.D · Prática Fliperamemória', to: '/pratica/fliperamemoria' },
 ];
 
 const TASK_LABEL: Record<TimerId, string> = {
+  T1: 'T1 · Realizar o treino diário',
   T2: 'T2 · Consultar o IPL',
   T3: 'T3 · Buscar e praticar tarefa de memória',
 };
@@ -62,9 +72,9 @@ export default function FacilitatorPanel() {
   const [collapsed, setCollapsed] = useState(false);
   const [, setTick] = useState(0);
 
-  const running = telemetry.timers.T2.startedAt && !telemetry.timers.T2.endedAt
-    ? true
-    : Boolean(telemetry.timers.T3.startedAt && !telemetry.timers.T3.endedAt);
+  const running = (['T1', 'T2', 'T3'] as TimerId[]).some(
+    (id) => telemetry.timers[id].startedAt && !telemetry.timers[id].endedAt,
+  );
 
   useEffect(() => {
     if (!running) return;
@@ -73,8 +83,13 @@ export default function FacilitatorPanel() {
   }, [running]);
 
   const summaries = summarize(telemetry);
-  const jump = (to: string) => {
-    navigate(to);
+  const jump = (s: Scenario | string) => {
+    if (typeof s === 'string') {
+      navigate(s);
+    } else {
+      if (s.preset) setWorkoutPreset(s.preset);
+      navigate(s.to);
+    }
     setFacilitatorOpen(false);
   };
 
@@ -103,7 +118,7 @@ export default function FacilitatorPanel() {
           <section className="stack-8">
             <h3>Cenários</h3>
             {SCENARIOS.map((s) => (
-              <button key={s.to} type="button" onClick={() => jump(s.to)}>{s.label}</button>
+              <button key={s.label} type="button" onClick={() => jump(s)}>{s.label}</button>
             ))}
           </section>
 
@@ -122,6 +137,7 @@ export default function FacilitatorPanel() {
               className="is-danger"
               onClick={() => {
                 resetSession();
+                resetWorkout();
                 jump('/');
               }}
             >

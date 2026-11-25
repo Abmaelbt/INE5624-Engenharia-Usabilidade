@@ -1,15 +1,16 @@
-# Plano de Implementação — Protótipo Web Mobile-First Lumosity (T2 e T3)
+# Plano de Implementação — Protótipo Web Mobile-First Lumosity (T1, T2 e T3)
 
 ## 1. Escopo e Decisões Fechadas
 
 | Item | Decisão |
 | :--- | :--- |
 | Plataforma | Web Mobile-First + PWA instalável. Sem `.apk`, sem Capacitor. |
-| Natureza | Protótipo navegacional de alta fidelidade para demonstrar ajustes de UI. Não é remodelagem final do app. |
-| Fidelidade visual | Colorido, conforme `image.png`. Geometria, copy e SVGs conforme HTML exportado do Figma. |
-| Tela inicial | `T2.B` (Início — Rosângela), conforme protótipo. |
-| Modo facilitador | Controle discreto: painel fora da moldura no desktop; gesto oculto no mobile (5 toques no cabeçalho). Funções: alternar cenário (`T2.A`, `T2.B`, `T3.A`), resetar sessão, exportar métricas. |
-| Telemetria A3 | Incluída. Silenciosa, em `localStorage`. Exportação JSON/CSV pelo modo facilitador. |
+| Natureza | Protótipo navegacional de alta fidelidade para demonstrar ajustes de UI nas tarefas T1, T2 e T3. |
+| Fidelidade visual | Colorido, conforme `image.png`. Geometria, copy e SVGs conforme HTML exportado do Figma e sketches do PDF A3. |
+| Tela inicial | `T1.A` em `/` (Início — Rosângela com treino diário `0 de 3 concluídos` e CTA `Começar treino`), guiando o participante por `T1 -> T2 -> T3`. Ao concluir (ou via preset do facilitador), exibe `T2.B` (`3 de 3 concluídos`) conforme `image.png`. |
+| Jogos gratuitos | Todos os 3 jogos gratuitos do catálogo são jogáveis (`Fliperamemória`, `Pássaros Perdidos` e `Culinária`), além de `Detetive` e `Café` no Treino Diário (T1). |
+| Modo facilitador | Controle discreto: painel fora da moldura no desktop; gesto oculto no mobile (5 toques no cabeçalho). Funções: alternar cenário (`T1.A`, `T1.B`, `T2.A`, `T2.B`, `T3.A`), cronômetros T1/T2/T3, resetar sessão, exportar métricas. |
+| Telemetria A3 | Incluída. Silenciosa, em `localStorage` (`lumo.telemetry.v1` + `lumo.workout.v1`). Exportação JSON/CSV pelo modo facilitador. |
 | Execução local | Docker (`Dockerfile` multi-stage non-root + `docker-compose.yml` com limites e healthcheck). |
 | Deploy | GitHub Pages (custo zero) via GitHub Actions. |
 | Contexto de agentes | `AGENTS.md` na raiz. |
@@ -18,7 +19,7 @@
 
 | Arquivo | Papel | Constatação |
 | :--- | :--- | :--- |
-| `A3-Sintese-Avaliacao-v1-Grupo_J-1.pdf` | Requisitos de usabilidade (ISO 9241-11), fluxos T2/T3, estados de borda do protótipo em papel | Metas: autonomia T2 25% -> 90% (<= 5 s, compreensão do IPL >= 80%); autonomia T3 62,5% -> 90% (<= 7 s, 0 abertura de paywall); SUS 66,25 -> >= 71. |
+| `A3-Sintese-Avaliacao-v1-Grupo_J-1.pdf` | Requisitos de usabilidade (ISO 9241-11), fluxos T1/T2/T3, estados de borda do protótipo em papel | Metas: autonomia T1 50% -> 90% (<= 4 min, <= 5 erros); autonomia T2 25% -> 90% (<= 5 s, compreensão do IPL >= 80%); autonomia T3 62,5% -> 90% (<= 7 s, 0 abertura de paywall); SUS 66,25 -> >= 71. |
 | `Lumosity Redesign (T2 e T3).html` | Export estático do Figma (bundle) | 10 telas `390x844px`, fonte `Nunito` (woff2 embutido), SVGs (ícones, gráfico de linha, tabuleiro 3x3), labels ARIA. Escala de cinza (`#111111`, `#F0F0F0`, `#F7F7F7`) com placeholder `{{accent}}`. Sem navegação entre telas. |
 | `image.png` | Referência cromática definitiva | 10 telas coloridas (5 de T2 + 5 de T3). Fonte dos tokens de cor. |
 
@@ -95,30 +96,34 @@ Tipografia: `Nunito` pesos `400`, `600`, `700`, `800`, `900`. Valores de hex sã
 
 | ID | Tela | Interações e transições |
 | :--- | :--- | :--- |
+| `T1.A` | Início (treino pendente `0/3`–`2/3`) | Card `Treino de hoje` com passos numerados `1-2-3`, barra proporcional e CTA `Começar treino` / `Continuar treino` -> `T1.B`. |
+| `T1.B` | Intro da etapa do treino (`/treino/:step`) | Progresso `1..3`, ilustração, regra em 2 passos, CTA primário `Praticar sem tempo` e secundário `Já sei jogar · Começar valendo`. |
+| `T1.C` | Partida do treino (Detetive / Café / Pássaros) | Prática (2 rodadas sem tempo + erro explicado) e modo valendo; estímulo central imune a toque com aviso `"Use os botões abaixo"` e registro de `stimulus_misclick`. |
+| `T1.D` | Etapa concluída (1/3 e 2/3) | Resumo de acertos e CTA `Próxima: Café` / `Próxima: Pássaros`; ao concluir etapa 3/3 -> `T2.A`. |
 | `T2.A` | Fim do treino | `Ver meu progresso` -> `T2.C`; `Voltar ao início` -> `T2.B`. Sem bottom nav. |
-| `T2.B` | Início (tela inicial) | Card IPL `885` / `Ver >` -> `T2.C`; `Como você está hoje? (opcional)` -> micro-sheet não bloqueante; `Mais tarefas no Premium (opcional)` -> sheet `Recurso Premium`; bottom nav (`Hoje`, `Tarefas`, `Progresso`). |
+| `T2.B` | Início (treino `3/3` concluído) | Card IPL `885` / `Ver >` -> `T2.C`; `Como você está hoje? (opcional)` -> micro-sheet não bloqueante; `Mais tarefas no Premium (opcional)` -> sheet `Recurso Premium`; bottom nav (`Hoje`, `Tarefas`, `Progresso`). |
 | `T2.C` | Meu Progresso | `O que é o IPL?` -> `T2.C2`; card `Memória` / `Atenção` -> `T2.D` (parametrizada por área); card `Velocidade` ("Faça 1 tarefa para ver") -> `T3.A`; `Comparar com outras pessoas` -> sheet `Recurso Premium` (CTA `Agora não`). |
 | `T2.C2` | Sheet: O que é o IPL? | Overlay escuro sobre `T2.C`. Fecha: `Entendi`, backdrop, arrastar para baixo, Voltar do Android. |
 | `T2.D` | Evolução da área | Voltar -> `T2.C`; segmentado `7 dias` / `30 dias` / `Tudo` atualiza gráfico SVG, eixos e frase-resumo; `Praticar` (Fliperamemória) -> `T3.C`. |
 | `T3.A` | Tarefas (todas) | Busca em tempo real (ignora acento/caixa; nome e área); chips `Todas`/`Memória`/`Atenção`/`Veloc.`; `Praticar` grátis -> `T3.C`; item `PREMIUM` -> `T3.B2`. |
 | `T3.B` | Tarefas (filtro Memória) | Mesmo componente de `T3.A` com filtro `Memória` ativo: contador `2 tarefas de Memória`; Grátis: `Fliperamemória`, `Culinária`; Premium (opcional): `Siga o Sapo`, `Batida Perfeita`. |
 | `T3.B2` | Sheet: Esta tarefa é Premium | Disparado por tarefa Premium. `Praticar` em `Fliperamemória`/`Culinária` -> `T3.C`; `Ver tarefas grátis` fecha e rola à seção gratuita; `Conhecer o Premium` -> tela informativa sem cobrança. |
-| `T3.C` | Ficha da tarefa | Voltar -> origem; `Praticar` -> `T3.D`; `Ver como praticar (30 s)` -> animação inline do trajeto da bola no banner (sem vídeo externo). |
-| `T3.D` | Partida de prática | Minigame jogável, 3 rodadas, sem cronômetro. Tabuleiro 3x3 com círculos de saída. Fase 1: bola percorre o trajeto. Fase 2: toque no círculo de saída. Acerto: verde + explicação + `Próxima rodada`. Erro: vermelho + dica pedagógica sem punição, nova tentativa. Fim da rodada 3: resumo com retorno a `T3.B` ou `T2.C`. |
+| `T3.C` | Ficha da tarefa | Voltar -> origem; ilustração específica (`Fliperamemória`, `Pássaros Perdidos` ou `Culinária`); `Praticar` -> `T3.D`; `Ver como praticar (30 s)` inline para `Fliperamemória`. |
+| `T3.D` | Partida de prática | Minigames jogáveis em 3 rodadas sem cronômetro: `Fliperamemória` (tabuleiro 3x3), `Pássaros Perdidos` (setas) e `Culinária` (sequência). Feedback positivo e erro pedagógico sem punição. |
 
 Estados adicionais (previstos no protótipo em papel do PDF): sheet `Recurso Premium`; micro-sheet `Como você está hoje? (opcional)`; tela informativa `Conhecer o Premium`.
 
 ### 5.2 Navegação
 
-- Bottom nav persistente em `T2.B`, `T2.C`, `T2.D`, `T3.A`, `T3.B`. Oculta em `T2.A`, `T3.C`, `T3.D`.
+- Bottom nav persistente em `T1.A`/`T2.B`, `T2.C`, `T2.D`, `T3.A`, `T3.B`. Oculta em `T1.B`–`T1.D`, `T2.A`, `T3.C`, `T3.D`.
 - Tab ativa: `--color-cta` + fundo `--color-cta-soft`.
 - Conteúdo de `T3.A`/`T3.B` é um único componente com filtro como estado (URL: `#/tarefas?area=memoria`).
 
 ## 6. Telemetria de Usabilidade (A3)
 
-- Armazenamento: `localStorage` (chave versionada `lumo.telemetry.v1`). Sem rede, sem identificadores pessoais.
-- Eventos: `session_start`, `screen_view`, `tap`, `task_start` / `task_end` (T2, T3), `premium_open`, `round_result` (acerto/erro, tentativas), `sheet_open/close`.
-- Métricas derivadas por sessão: tempo por tarefa (alvos: T2 <= 5 s; T3 <= 7 s), nº de toques, aberturas de paywall (alvo 0), conclusão autônoma (sem uso do facilitador).
+- Armazenamento: `localStorage` (`lumo.telemetry.v1` e `lumo.workout.v1`). Sem rede, sem identificadores pessoais.
+- Eventos: `session_start`, `screen_view`, `tap`, `task_timer_start` / `task_timer_end` (T1, T2, T3), `workout_started`, `workout_step_completed`, `workout_completed`, `stimulus_misclick`, `premium_sheet_opened`, `practice_attempt`, `practice_completed`, `sheet_opened`.
+- Métricas derivadas por sessão: tempo por tarefa (alvos: T1 <= 4 min; T2 <= 5 s; T3 <= 7 s), nº de toques, aberturas de paywall (alvo 0), erros (`practice_attempt` incorreto + `stimulus_misclick`), conclusão autônoma.
 - Exportação: JSON e CSV, pelo painel do facilitador. Botão de reset entre participantes.
 - Acesso: painel lateral (desktop) ou 5 toques no cabeçalho (mobile). Invisível ao participante.
 
@@ -295,7 +300,7 @@ jobs:
         ├── App.tsx                # HashRouter, Android back, desktop frame
         ├── styles/{tokens.css,global.css,fonts.css}
         ├── assets/fonts/          # Nunito woff2 + OFL notice
-        ├── data/{tasks.ts,progress.ts,fliperamemoria.ts}
+        ├── data/{tasks.ts,progress.ts,fliperamemoria.ts,birds.ts,detective.ts,sequence.ts}
         ├── components/
         │   ├── BottomNav.tsx
         │   ├── BottomSheet.tsx
@@ -303,17 +308,19 @@ jobs:
         │   ├── IplScale.tsx
         │   ├── AreaLineChart.tsx
         │   ├── PinballBoard.tsx
-        │   └── FacilitatorPanel.tsx
+        │   ├── FacilitatorPanel.tsx
+        │   └── games/{BirdsGame.tsx,DetectiveGame.tsx,SequenceGame.tsx}
         ├── screens/
+        │   ├── DailyWorkoutScreen.tsx      # T1.B, T1.C, T1.D
         │   ├── WorkoutCompleteScreen.tsx   # T2.A
-        │   ├── HomeScreen.tsx              # T2.B
+        │   ├── HomeScreen.tsx              # T1.A, T2.B
         │   ├── ProgressScreen.tsx          # T2.C, T2.C2
         │   ├── AreaDetailScreen.tsx        # T2.D
         │   ├── TasksScreen.tsx             # T3.A, T3.B, T3.B2
         │   ├── TaskDetailScreen.tsx        # T3.C
         │   ├── PracticeGameScreen.tsx      # T3.D
         │   └── PremiumInfoScreen.tsx
-        └── utils/{normalize.ts,telemetry.ts}
+        └── utils/{normalize.ts,telemetry.ts,workoutStore.ts,facilitatorStore.ts,useGoBack.ts,useSheet.ts}
 ```
 
 ## 10. Fases de Execução

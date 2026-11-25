@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomSheet from '../components/BottomSheet';
-import { CheckIcon, ChevronRightIcon, FlameIcon, LockIcon, TriangleUpIcon } from '../components/Icons';
+import { CheckIcon, ChevronRightIcon, FlameIcon, LockIcon, PlayIcon, TriangleUpIcon } from '../components/Icons';
 import { PremiumFeatureSheet } from '../components/Sheets';
 import { IPL } from '../data/progress';
 import { useSecretTaps } from '../utils/facilitatorStore';
 import { useSheet } from '../utils/useSheet';
+import { DAILY_STEPS, nextPendingStepIndex, useWorkout } from '../utils/workoutStore';
 
-const TODAY = ['Pássaros', 'Detetive', 'Café'];
 const MOODS = ['Bem', 'Normal', 'Cansada'];
 
 function MoodSheet({ open }: { open: boolean }) {
@@ -32,11 +32,20 @@ function MoodSheet({ open }: { open: boolean }) {
   );
 }
 
-/** T2.B: home (default entry screen). */
+/** T1.A (pending 0/3..2/3) and T2.B (completed 3/3) home screen. */
 export default function HomeScreen() {
   const navigate = useNavigate();
   const sheet = useSheet();
   const onSecretTap = useSecretTaps();
+  const workout = useWorkout();
+
+  const doneCount = workout.completed.length;
+  const allDone = doneCount === DAILY_STEPS.length;
+  const nextStep = nextPendingStepIndex(workout);
+  // Display order matches image.png when 3/3 (Pássaros, Detetive, Café) and sequential order 1-2-3 while pending.
+  const displaySteps = allDone
+    ? [DAILY_STEPS[2]!, DAILY_STEPS[0]!, DAILY_STEPS[1]!]
+    : DAILY_STEPS;
 
   return (
     <main className="screen">
@@ -46,28 +55,55 @@ export default function HomeScreen() {
           <h1 className="h1">Rosângela</h1>
         </div>
         <div className="streak-badge">
-          <FlameIcon size={18} color="var(--color-cta)" stroke={2} />2 dias
+          <FlameIcon size={18} color="var(--color-cta)" stroke={2} />
+          {workout.streakDays} dias
         </div>
       </header>
 
       <section className="card stack-16" aria-label="Treino de hoje" style={{ borderRadius: 22 }}>
         <div className="row row--between" style={{ alignItems: 'baseline' }}>
           <h2 style={{ fontSize: 20, fontWeight: 900 }}>Treino de hoje</h2>
-          <span className="today-count">3 de 3 concluídos</span>
+          <span className={allDone ? 'today-count' : 'today-count today-count--pending'}>
+            {doneCount} de 3 concluídos
+          </span>
         </div>
-        <div className="bar" role="progressbar" aria-valuemin={0} aria-valuemax={3} aria-valuenow={3} aria-label="Treino de hoje">
-          <span style={{ width: '100%' }} />
+        <div
+          className="bar"
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={3}
+          aria-valuenow={doneCount}
+          aria-label="Treino de hoje"
+          style={!allDone ? { ['--bar-color' as string]: 'var(--color-cta)' } : undefined}
+        >
+          <span style={{ width: `${(doneCount / 3) * 100}%` }} />
         </div>
         <div className="today-grid">
-          {TODAY.map((name) => (
-            <div key={name} className="today-item">
-              <div className="today-item__dot">
-                <CheckIcon size={26} color="var(--color-success)" stroke={2.8} />
+          {displaySteps.map((item) => {
+            const isDone = workout.completed.includes(item.id);
+            const isNext = !allDone && item.step === nextStep;
+            return (
+              <div key={item.id} className="today-item">
+                {isDone ? (
+                  <div className="today-item__dot">
+                    <CheckIcon size={26} color="var(--color-success)" stroke={2.8} />
+                  </div>
+                ) : (
+                  <div className={`today-item__dot ${isNext ? 'today-item__dot--next' : 'today-item__dot--todo'}`}>
+                    {item.step}
+                  </div>
+                )}
+                {item.shortName}
               </div>
-              {name}
-            </div>
-          ))}
+            );
+          })}
         </div>
+        {!allDone && (
+          <button type="button" className="btn btn--primary" onClick={() => navigate(`/treino/${nextStep}`)}>
+            <PlayIcon size={14} color="#fff" />
+            {doneCount === 0 ? 'Começar treino' : 'Continuar treino'}
+          </button>
+        )}
       </section>
 
       <button type="button" className="ipl-card" onClick={() => navigate('/progresso')} aria-label={`Seu IPL geral ${IPL.score}. Ver meu progresso`}>

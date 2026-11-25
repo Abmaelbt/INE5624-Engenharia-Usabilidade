@@ -1,5 +1,5 @@
 /* Lumosity prototype service worker: precache shell, runtime cache for the rest. */
-const CACHE = 'lumosity-proto-v1';
+const CACHE = 'lumosity-proto-v2';
 const SHELL = ['./', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 
 async function precache() {

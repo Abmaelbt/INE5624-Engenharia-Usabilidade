@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import BottomNav, { NAV_ROUTES } from './components/BottomNav';
 import FacilitatorPanel from './components/FacilitatorPanel';
 import AreaDetailScreen from './screens/AreaDetailScreen';
+import DailyWorkoutScreen from './screens/DailyWorkoutScreen';
 import HomeScreen from './screens/HomeScreen';
 import PracticeGameScreen from './screens/PracticeGameScreen';
 import PremiumInfoScreen from './screens/PremiumInfoScreen';
@@ -35,6 +36,7 @@ export default function App() {
       <div className="phone" id="phone-root">
         <Routes>
           <Route path="/" element={<HomeScreen />} />
+          <Route path="/treino/:step" element={<DailyWorkoutScreen />} />
           <Route path="/treino-concluido" element={<WorkoutCompleteScreen />} />
           <Route path="/progresso" element={<ProgressScreen />} />
           <Route path="/progresso/:areaId" element={<AreaDetailScreen />} />

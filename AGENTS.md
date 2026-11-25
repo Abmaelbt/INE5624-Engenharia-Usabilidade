@@ -4,22 +4,23 @@ Context file for AI coding agents working in this repository.
 
 ## Project
 
-UFSC INE5624 (Usability Engineering). High-fidelity, navigational, mobile-only web prototype of a Lumosity redesign covering Task 2 (check IPL score) and Task 3 (search and practice a memory task). Purpose: demonstrate UI adjustments, not ship a production app.
+UFSC INE5624 (Usability Engineering). High-fidelity, navigational, mobile-only web prototype of a Lumosity redesign covering Task 1 (daily workout), Task 2 (check IPL score), and Task 3 (search and practice a memory task). Purpose: demonstrate UI adjustments, not ship a production app.
 
 Full specification: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) (PT-BR).
 
 ## Source of Truth (priority order)
 
-1. `image.png` — visual and color reference for all 10 screens. Final output must be colorful as shown.
+1. `image.png` — visual and color reference for all 10 T2/T3 screens. Final output must be colorful as shown.
 2. `Lumosity Redesign (T2 e T3).html` — Figma export. Authority for layout geometry (`390x844`), copy, ARIA labels, SVGs, embedded `Nunito` woff2. Exported in grayscale with `{{accent}}` placeholder: do NOT copy its grayscale colors.
-3. `A3-Sintese-Avaliacao-v1-Grupo_J-1.pdf` — usability goals (ISO 9241-11) and paper-prototype edge states (Premium feature sheet, pedagogical error feedback in Fliperamemoria).
+3. `A3-Sintese-Avaliacao-v1-Grupo_J-1.pdf` — usability goals (ISO 9241-11) for T1/T2/T3 and paper-prototype edge states (Premium feature sheet, pedagogical error feedback, T1 daily workout sketch).
 4. `IMPLEMENTATION_PLAN.md` — implementation spec.
 
 ## Locked Decisions
 
 - Web Mobile-First + installable PWA only. No APK, no Capacitor.
-- Default entry screen: `T2.B` (Inicio, user "Rosangela").
-- Silent usability telemetry in `localStorage` (`lumo.telemetry.v1`), exported as JSON/CSV via hidden facilitator panel (desktop side panel; mobile: 5 taps on header).
+- Default entry screen: `T1.A` on `/` (Home — Rosangela with `0 de 3 concluídos` pending daily workout), so participants naturally flow `T1 -> T2 -> T3`. Once completed (or via facilitator preset), `/` renders `T2.B` (`3 de 3 concluídos`) matching `image.png`.
+- All 3 free catalog games are playable (`Fliperamemória`, `Pássaros Perdidos`, `Culinária`), plus `Detetive` and `Café` in the T1 daily workout.
+- Silent usability telemetry in `localStorage` (`lumo.telemetry.v1` + workout progress in `lumo.workout.v1`), exported as JSON/CSV via hidden facilitator panel (desktop side panel; mobile: 5 taps on header).
 - `HashRouter` (required for GitHub Pages subpath).
 - Docker runtime: `nginxinc/nginx-unprivileged` (non-root).
 - Free deploy: GitHub Pages via GitHub Actions.
@@ -43,7 +44,7 @@ Full specification: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) (PT-BR).
 - Touch targets >= `44x44px`. Use `100dvh` and `env(safe-area-inset-*)`.
 - Desktop preview: centered `390x844` frame; mobile: full screen.
 - Respect `prefers-reduced-motion`.
-- Screen IDs: `T2.A` workout complete, `T2.B` home, `T2.C` progress, `T2.C2` IPL sheet, `T2.D` area detail, `T3.A` tasks, `T3.B` tasks filtered (Memory), `T3.B2` Premium sheet, `T3.C` task detail, `T3.D` practice game.
+- Screen IDs: `T1.A` pending home (`0/3..2/3`), `T1.B` step intro, `T1.C` daily game (`Detetive` / `Café` / `Pássaros`), `T1.D` step summary, `T2.A` workout complete, `T2.B` home (`3/3`), `T2.C` progress, `T2.C2` IPL sheet, `T2.D` area detail, `T3.A` tasks, `T3.B` tasks filtered (Memory), `T3.B2` Premium sheet, `T3.C` task detail, `T3.D` practice game.
 
 ## Design Tokens
 
@@ -116,7 +117,7 @@ cd .. && docker compose up -d --build && curl -fsS http://localhost:8080/healthz
 - `npm run typecheck && npm run build` pass.
 - `docker compose config` valid; container healthy.
 - Visual audit at `390x844` against `image.png` (10 screens).
-- Flows work end to end: T2 (`T2.B` -> `T2.C` -> `T2.C2` -> `T2.D`) and T3 (`T3.A` -> Memory filter -> `T3.B2` -> `T3.C` -> `T3.D`).
+- Flows work end to end: T1 (`T1.A` -> `/treino/1` -> `/treino/2` -> `/treino/3` -> `T2.A`), T2 (`T2.B` -> `T2.C` -> `T2.C2` -> `T2.D`), and T3 (`T3.A` -> Memory filter -> `T3.B2` -> `T3.C` -> `T3.D` across all 3 free games).
 
 ## Git
 

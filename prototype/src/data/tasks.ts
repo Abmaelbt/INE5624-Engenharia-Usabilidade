@@ -24,7 +24,7 @@ export const TASKS: Task[] = [
     duration: 'cerca de 2 min',
     premium: false,
     icon: 'bird',
-    steps: ['Observe os pássaros que aparecem.', 'Toque nos que estavam perdidos.'],
+    steps: ['Olhe para onde o pássaro do meio aponta.', 'Toque na seta da mesma direção abaixo.'],
   },
   {
     id: 'fliperamemoria',

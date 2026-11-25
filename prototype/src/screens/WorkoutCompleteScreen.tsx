@@ -1,11 +1,17 @@
 import { useNavigate } from 'react-router-dom';
 import { CheckIcon, ChartIcon, FlameIcon, TriangleUpIcon } from '../components/Icons';
+import { useWorkout } from '../utils/workoutStore';
 
 const DONE = ['Pássaros', 'Detetive', 'Café'];
 
 /** T2.A: end of workout. */
 export default function WorkoutCompleteScreen() {
   const navigate = useNavigate();
+  const workout = useWorkout();
+  const birds = workout.results['passaros-perdidos'];
+  const hits = birds ? birds.hits : 18;
+  const total = birds ? birds.total : 20;
+
   return (
     <main className="screen screen--full">
       <div className="complete-hero">
@@ -15,7 +21,7 @@ export default function WorkoutCompleteScreen() {
         <h1 className="h1 h1--xl" style={{ marginTop: 8 }}>Treino concluído!</h1>
         <p className="complete-meta">
           <FlameIcon size={18} color="var(--color-cta)" stroke={2} />
-          3 de 3 tarefas · 2 dias seguidos
+          3 de 3 tarefas · {workout.streakDays} dias seguidos
         </p>
       </div>
 
@@ -37,7 +43,7 @@ export default function WorkoutCompleteScreen() {
             <strong className="last-task__name">Pássaros Perdidos</strong>
           </div>
           <span>
-            <strong style={{ fontSize: 17 }}>18</strong> de 20 acertos
+            <strong style={{ fontSize: 17 }}>{hits}</strong> de {total} acertos
           </span>
         </div>
         <hr className="divider" />

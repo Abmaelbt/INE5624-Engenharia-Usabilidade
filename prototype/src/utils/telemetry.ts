@@ -17,9 +17,13 @@ export type EventType =
   | 'premium_sheet_opened'
   | 'sheet_opened'
   | 'practice_attempt'
-  | 'practice_completed';
+  | 'practice_completed'
+  | 'workout_started'
+  | 'workout_step_completed'
+  | 'workout_completed'
+  | 'stimulus_misclick';
 
-export type TimerId = 'T2' | 'T3';
+export type TimerId = 'T1' | 'T2' | 'T3';
 export type Outcome = 'autonomous' | 'assisted';
 export type EventData = Record<string, string | number | boolean>;
 
@@ -65,7 +69,7 @@ function fresh(): TelemetryState {
     sessionId: `s-${now.toString(36)}`,
     startedAt: now,
     events: [{ t: now, type: 'session_start', path: currentPath() }],
-    timers: { T2: emptyTimer(), T3: emptyTimer() },
+    timers: { T1: emptyTimer(), T2: emptyTimer(), T3: emptyTimer() },
   };
 }
 
@@ -73,8 +77,19 @@ function load(): TelemetryState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
-      const parsed = JSON.parse(raw) as TelemetryState;
-      if (parsed && Array.isArray(parsed.events) && parsed.timers) return parsed;
+      const parsed = JSON.parse(raw) as Partial<TelemetryState>;
+      if (parsed && Array.isArray(parsed.events) && parsed.timers) {
+        return {
+          sessionId: parsed.sessionId ?? `s-${Date.now().toString(36)}`,
+          startedAt: parsed.startedAt ?? Date.now(),
+          events: parsed.events,
+          timers: {
+            T1: parsed.timers.T1 ?? emptyTimer(),
+            T2: parsed.timers.T2 ?? emptyTimer(),
+            T3: parsed.timers.T3 ?? emptyTimer(),
+          },
+        };
+      }
     }
   } catch {
     /* ignore corrupted storage */
@@ -137,7 +152,7 @@ export function useTelemetry(): TelemetryState {
 }
 
 export function summarize(s: TelemetryState, now = Date.now()): TaskSummary[] {
-  return (['T2', 'T3'] as TimerId[]).map((id) => {
+  return (['T1', 'T2', 'T3'] as TimerId[]).map((id) => {
     const timer = s.timers[id];
     if (!timer.startedAt) {
       return { id, status: 'idle', elapsedMs: 0, taps: 0, premiumOpens: 0, practiceErrors: 0, outcome: null };
@@ -150,7 +165,9 @@ export function summarize(s: TelemetryState, now = Date.now()): TaskSummary[] {
       elapsedMs: end - timer.startedAt,
       taps: inWindow.filter((e) => e.type === 'tap').length,
       premiumOpens: inWindow.filter((e) => e.type === 'premium_sheet_opened').length,
-      practiceErrors: inWindow.filter((e) => e.type === 'practice_attempt' && e.data?.correct === false).length,
+      practiceErrors: inWindow.filter(
+        (e) => (e.type === 'practice_attempt' && e.data?.correct === false) || e.type === 'stimulus_misclick',
+      ).length,
       outcome: timer.outcome,
     };
   });

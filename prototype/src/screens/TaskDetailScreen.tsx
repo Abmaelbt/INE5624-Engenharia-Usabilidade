@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { ChevronLeftIcon, PlayCircleIcon, PlayIcon, TaskIcon } from '../components/Icons';
+import { ChevronLeftIcon, PlayCircleIcon, PlayIcon } from '../components/Icons';
 import { PinballHero } from '../components/PinballBoard';
+import { BirdsHero } from '../components/games/BirdsGame';
+import { SequenceHero } from '../components/games/SequenceGame';
 import { ROUNDS } from '../data/fliperamemoria';
 import { AREA_COLOR, findTask } from '../data/tasks';
 import { useGoBack } from '../utils/useGoBack';
@@ -58,8 +60,10 @@ export default function TaskDetailScreen() {
       <div className="hero" style={{ ['--hero-color' as string]: AREA_COLOR[task.area] }}>
         {isPinball ? (
           <PinballHero round={ROUNDS[0]!} demoKey={demoRunning ? demoKey : 0} />
+        ) : task.id === 'passaros-perdidos' ? (
+          <BirdsHero />
         ) : (
-          <TaskIcon kind={task.icon} size={96} color="#fff" stroke={1.8} />
+          <SequenceHero theme="culinaria" />
         )}
         {demoRunning && caption !== null && (
           <span className="hero__caption" role="status">{DEMO_CAPTIONS[caption]}</span>
