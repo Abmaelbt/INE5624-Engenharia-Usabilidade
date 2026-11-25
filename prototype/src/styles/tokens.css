@@ -1,0 +1,60 @@
+:root {
+  /* Call to action */
+  --color-cta: #c14009;
+  --color-cta-hover: #a63607;
+  --color-cta-soft: #fff2e2;
+
+  /* Memory area */
+  --color-memory: #6d27d8;
+  --color-memory-mid: #a78bfa;
+  --color-memory-low: #ddd6fe;
+  --color-memory-soft: #f3e8ff;
+
+  /* Feedback */
+  --color-success: #227c48;
+  --color-success-soft: #e2f4e8;
+  --color-attention: #19746d;
+  --color-attention-soft: #e6f4f1;
+  --color-info: #2f76d2;
+  --color-info-soft: #eaf2ff;
+  --color-error: #b91c1c;
+  --color-error-soft: #fee2e2;
+
+  /* Neutrals */
+  --color-bg: #f7f7f7;
+  --color-surface: #ffffff;
+  --color-text: #111111;
+  --color-text-muted: #515151;
+  --color-text-subtle: #626262;
+  --color-border: #e6e6e6;
+  --color-border-strong: #d9d9d9;
+  --color-premium-bg: #f2f2f2;
+
+  /* Radii */
+  --radius-12: 12px;
+  --radius-14: 14px;
+  --radius-16: 16px;
+  --radius-20: 20px;
+  --radius-22: 22px;
+  --radius-24: 24px;
+  --radius-28: 28px;
+  --radius-pill: 999px;
+
+  /* Elevation */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.06), 0 6px 20px rgba(0, 0, 0, 0.06);
+  --shadow-sheet: 0 -8px 30px rgba(0, 0, 0, 0.18);
+  --shadow-cta: 0 6px 16px rgba(193, 64, 9, 0.28);
+
+  /* Layout */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --nav-height: 82px;
+  --screen-pt: calc(var(--safe-top) + 28px);
+  --font: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+@media (min-width: 520px) {
+  :root {
+    --screen-pt: 52px;
+  }
+}
